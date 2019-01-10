@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Upload to ESP32" type="MicroPythonConfigurationType" factoryName="MicroPython" path="$PROJECT_DIR$/main.py">
+    <method v="2" />
+  </configuration>
+</component>
