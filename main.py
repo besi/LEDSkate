@@ -34,6 +34,10 @@ def initialize_pixel(count, pixel):
             r = x * 3
             g = 0
 
+        gamma = 1/1.8
+        r = r ** gamma
+        g = g ** gamma
+        b = b ** gamma
 
         pixel[k] = (int(r * 255), int(g * 255), int(b * 255))
 
