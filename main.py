@@ -46,8 +46,7 @@ colors = initialize_pixel(led_count, dummy_np)
 while True:
     led.value(proximity.value())
 
-    # if proximity.value() == 0 and old_proximity == 1:
-    if True:
+    if proximity.value() == 0 and old_proximity == 1:
         t0 = utime.ticks_us()
 
         offset += 1
