@@ -2,6 +2,7 @@ import machine, neopixel
 import time
 import utime
 
+change_rate = 2
 led_count = 80
 proximity_pin = 36
 neopixel_pin = 4
@@ -49,7 +50,7 @@ while True:
     if proximity.value() == 0 and old_proximity == 1:
         t0 = utime.ticks_us()
 
-        offset += 1
+        offset += change_rate
         index = (offset % led_count) * np.bpp
         np.buf = dummy_np.buf[index:] + dummy_np.buf[:index]
 
