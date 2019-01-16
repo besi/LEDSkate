@@ -20,3 +20,4 @@ Download and upload a file
 - Turn indicator when curves are detected
 - Remote control for special effects
 - Auto Shut-off when the board is picked up
+- Start a webserver using picoweb. See [picoweb#46](https://github.com/pfalcon/picoweb/issues/46)
