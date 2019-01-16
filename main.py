@@ -1,8 +1,9 @@
-import machine, neopixel
 import time
-import utime
 
-change_rate = 2
+import machine
+import neopixel
+
+change_rate = 1
 led_count = 80
 proximity_pin = 36
 neopixel_pin = 4
@@ -35,12 +36,13 @@ def initialize_pixel(count, pixel):
             r = x * 3
             g = 0
 
-        gamma = 1/1.8
+        gamma = 1 / 1.8
         r = r ** gamma
         g = g ** gamma
         b = b ** gamma
 
         pixel[k] = (int(r * 255), int(g * 255), int(b * 255))
+
 
 colors = initialize_pixel(led_count, dummy_np)
 
@@ -48,18 +50,9 @@ while True:
     led.value(proximity.value())
 
     if proximity.value() == 0 and old_proximity == 1:
-        t0 = utime.ticks_us()
-
         offset += change_rate
         index = (offset % led_count) * np.bpp
         np.buf = dummy_np.buf[index:] + dummy_np.buf[:index]
-
-        #for k in range(led_count):
-        #    np[k] = colors[(k + offset) % led_count]
-
-        t1 = utime.ticks_us()
-        print(t1 - t0)
-
         np.write()
 
     old_proximity = proximity.value()
