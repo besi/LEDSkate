@@ -1,21 +1,28 @@
 # This file is executed on every boot (including wake-boot from deepsleep)
 import esp
+import machine
 import network
-import webrepl
 import utime
+import webrepl
 
 esp.osdebug(None)
 
-# Connect to the wifi (requires wifi.txt with "ssid:password" to be present)
-ssid, password = open('wifi.txt').read().split(':')
-wifi = network.WLAN(network.STA_IF)
-wifi.active(True)
-wifi.connect(ssid, password)
-while not wifi.isconnected():
-    pass
-current_ip = wifi.ifconfig()[0]
+# Pressing the button during startup will enable the WIFI
+enable_wifi = not machine.Pin(0, machine.Pin.IN).value()
+current_ip = None
 
-webrepl.start()
+if enable_wifi:
+    # Connect to the wifi (requires wifi.txt with "ssid:password" to be present)
+    ssid, password = open('wifi.txt').read().split(':')
+    wifi = network.WLAN(network.STA_IF)
+    wifi.active(True)
+    wifi.connect(ssid, password)
+    while not wifi.isconnected():
+        pass
+    current_ip = wifi.ifconfig()[0]
+
+    webrepl.start()
+
 
 def timed_function(f, *args, **kwargs):
     def new_func(*args, **kwargs):
