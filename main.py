@@ -1,9 +1,8 @@
+import machine, neopixel
 import time
+import utime
 
-import machine
-import neopixel
-
-change_rate = 1
+change_rate = 1.963
 led_count = 80
 proximity_pin = 36
 neopixel_pin = 4
@@ -36,23 +35,43 @@ def initialize_pixel(count, pixel):
             r = x * 3
             g = 0
 
-        gamma = 1 / 1.8
+        gamma = 1/1.8
         r = r ** gamma
         g = g ** gamma
         b = b ** gamma
 
         pixel[k] = (int(r * 255), int(g * 255), int(b * 255))
 
-
 colors = initialize_pixel(led_count, dummy_np)
-
+c=0
 while True:
     led.value(proximity.value())
 
     if proximity.value() == 0 and old_proximity == 1:
-        offset += change_rate
-        index = (offset % led_count) * np.bpp
-        np.buf = dummy_np.buf[index:] + dummy_np.buf[:index]
+        offset -= change_rate
+        c += 1
+        index = (int(offset) % led_count)
+        idx_end = index + 40
+        if idx_end > 80:
+            idx_end = (idx_end-80)
+            end_len = (80-index)
+            print(c, index, idx_end, end_len)
+            np.buf[0:end_len*3] = dummy_np.buf[index*3:80*3]
+            np.buf[end_len*3:40*3] = dummy_np.buf[0:(40-end_len)*3]
+        else:
+            np.buf[0:40*3] = dummy_np.buf[index*3:idx_end*3]
+            print(c, index)
+
+        # not allowed in upy : -1 offset
+        # np.buf[40*3:80*3] = np.buf[39*3::-1]
+
+        for k in range(40):
+            k3 = k*3
+            np.buf[120+k3:123+k3] = np.buf[117-k3:120-k3]
+
+        #for k in range(led_count):
+        #    np[k] = colors[(k + offset) % led_count]
+
         np.write()
 
     old_proximity = proximity.value()
