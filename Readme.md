@@ -1,6 +1,8 @@
 LED Skate
 =========
 
+![glow](http://res.cloudinary.com/mediacloud/image/upload/v1547704870/pqiinxky4pwugkchjsbx.jpg)
+
 Connect via Serial
 
     picocom --baud 115200 /dev/cu.usbserial-DN02N1D8
