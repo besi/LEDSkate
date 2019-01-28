@@ -3,7 +3,7 @@ import time
 import machine
 import neopixel
 
-change_rate = 1.963
+change_rate = .9815
 led_count = 80
 sub_strip_count = 40
 proximity_pin = 36
@@ -94,7 +94,7 @@ while True:
 
     last_button = button.value()
 
-    if proximity.value() == 0 and old_proximity == 1:
+    if proximity.value() != old_proximity:
         bytes = 3
         offset -= change_rate
         c += 1
