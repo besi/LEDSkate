@@ -80,7 +80,6 @@ def initialize_pixel(count, pixel, mode):
 
 
 initialize_pixel(led_count, np_dummy, current_mode)
-c = 0
 last_button = button.value()
 
 while True:
@@ -97,18 +96,15 @@ while True:
     if proximity.value() != old_proximity:
         bytes = 3
         offset -= change_rate
-        c += 1
         index = (int(offset) % led_count)
         idx_end = index + sub_strip_count
         if idx_end > led_count:
             idx_end = (idx_end - led_count)
             end_len = (led_count - index)
-            print(c, index, idx_end, end_len)
             np.buf[0:end_len * bytes] = np_dummy.buf[index * bytes:led_count * bytes]
             np.buf[end_len * bytes:sub_strip_count * bytes] = np_dummy.buf[0:(sub_strip_count - end_len) * bytes]
         else:
             np.buf[0:sub_strip_count * bytes] = np_dummy.buf[index * bytes:idx_end * bytes]
-            print(c, index)
 
         for k in range(sub_strip_count):
             k3 = k * bytes
