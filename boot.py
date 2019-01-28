@@ -8,6 +8,8 @@ import webrepl
 esp.osdebug(None)
 
 # Pressing the button during startup will enable the WIFI
+
+utime.sleep(1)
 enable_wifi = not machine.Pin(0, machine.Pin.IN).value()
 current_ip = None
 
