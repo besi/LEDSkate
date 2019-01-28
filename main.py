@@ -1,16 +1,18 @@
-import machine, neopixel
 import time
-import utime
+
+import machine
+import neopixel
 
 change_rate = 1.963
 led_count = 80
+sub_strip_count = 40
 proximity_pin = 36
 neopixel_pin = 4
 led_pin = 5
 
-led = machine.Pin(led_pin, machine.Pin.OUT)  # create output pin on GPIO0
+led = machine.Pin(led_pin, machine.Pin.OUT)
 np = neopixel.NeoPixel(machine.Pin(neopixel_pin), led_count, timing=True)
-dummy_np = neopixel.NeoPixel(machine.Pin(neopixel_pin), led_count, timing=True)
+np_dummy = neopixel.NeoPixel(machine.Pin(neopixel_pin), led_count, timing=True)
 
 proximity = machine.Pin(proximity_pin, machine.Pin.IN)
 old_proximity = 1
@@ -18,12 +20,14 @@ offset = 0
 
 button = machine.Pin(0)
 
-mode = 4
+current_mode = 4
 max_mode = 4
 
+
 def initialize_pixel(count, pixel, mode):
+    gamma = 1
     for k in range(count):
-        x = k / (count)
+        x = k / count
         if mode == 1:
             if 0 <= x < 1 / 3:
                 r = 1
@@ -75,7 +79,7 @@ def initialize_pixel(count, pixel, mode):
         pixel[k] = (int(r * 255), int(g * 255), int(b * 255))
 
 
-initialize_pixel(led_count, dummy_np, mode)
+initialize_pixel(led_count, np_dummy, current_mode)
 c = 0
 last_button = button.value()
 
@@ -83,38 +87,32 @@ while True:
     led.value(proximity.value())
 
     if last_button != button.value() and button.value() == 0:
-        mode += 1
-        if mode > max_mode:
-            mode = 1
-        initialize_pixel(led_count, dummy_np, mode)
+        current_mode += 1
+        if current_mode > max_mode:
+            current_mode = 1
+        initialize_pixel(led_count, np_dummy, current_mode)
 
     last_button = button.value()
 
     if proximity.value() == 0 and old_proximity == 1:
+        bytes = 3
         offset -= change_rate
         c += 1
         index = (int(offset) % led_count)
-        idx_end = index + 40
-        if idx_end > 80:
-            idx_end = (idx_end - 80)
-            end_len = (80 - index)
+        idx_end = index + sub_strip_count
+        if idx_end > led_count:
+            idx_end = (idx_end - led_count)
+            end_len = (led_count - index)
             print(c, index, idx_end, end_len)
-            np.buf[0:end_len * 3] = dummy_np.buf[index * 3:80 * 3]
-            np.buf[end_len * 3:40 * 3] = dummy_np.buf[0:(40 - end_len) * 3]
+            np.buf[0:end_len * bytes] = np_dummy.buf[index * bytes:led_count * bytes]
+            np.buf[end_len * bytes:sub_strip_count * bytes] = np_dummy.buf[0:(sub_strip_count - end_len) * bytes]
         else:
-            np.buf[0:40 * 3] = dummy_np.buf[index * 3:idx_end * 3]
+            np.buf[0:sub_strip_count * bytes] = np_dummy.buf[index * bytes:idx_end * bytes]
             print(c, index)
 
-        # not allowed in upy : -1 offset
-        # np.buf[40*3:80*3] = np.buf[39*3::-1]
-
-        for k in range(40):
-            k3 = k * 3
+        for k in range(sub_strip_count):
+            k3 = k * bytes
             np.buf[120 + k3:123 + k3] = np.buf[117 - k3:120 - k3]
-
-        # for k in range(led_count):
-        #    np[k] = colors[(k + offset) % led_count]
-
         np.write()
 
     old_proximity = proximity.value()
