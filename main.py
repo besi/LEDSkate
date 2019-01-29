@@ -2,6 +2,9 @@ import time
 
 import machine
 import neopixel
+import network
+
+from microWebSrv import MicroWebSrv
 
 change_rate = .9815
 led_count = 80
@@ -82,14 +85,43 @@ def initialize_pixel(count, pixel, mode):
 initialize_pixel(led_count, np_dummy, current_mode)
 last_button = button.value()
 
+wifi = network.WLAN(network.STA_IF)
+
+
+def change_mode():
+    global current_mode
+    global max_mode
+    old_mode = current_mode
+    current_mode += 1
+    print("Changed mode from %i to %i" % (old_mode, current_mode))
+    if current_mode > max_mode:
+        current_mode = 1
+    initialize_pixel(led_count, np_dummy, current_mode)
+
+
+@MicroWebSrv.route('/mode')
+def handlerFuncGet(httpClient, httpResponse):
+    change_mode()
+    httpResponse.WriteResponseOk(headers=None,
+                                 contentType="text/html",
+                                 contentCharset="UTF-8",
+                                 content="HELLO HTTP")
+
+
+def startWebserver():
+    print('Starting Webserver at http://%s' % wifi.ifconfig()[0])
+    mws = MicroWebSrv()
+    mws.Start(threaded=True)
+
+
+if wifi.active():
+    startWebserver()
+
 while True:
     led.value(proximity.value())
 
     if last_button != button.value() and button.value() == 0:
-        current_mode += 1
-        if current_mode > max_mode:
-            current_mode = 1
-        initialize_pixel(led_count, np_dummy, current_mode)
+        change_mode()
 
     last_button = button.value()
 
