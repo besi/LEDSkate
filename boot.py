@@ -14,24 +14,15 @@ enable_wifi = not machine.Pin(0, machine.Pin.IN).value()
 current_ip = None
 
 if enable_wifi:
-    # Connect to the wifi (requires wifi.txt with "ssid:password" to be present)
-    ssid, password = open('wifi.txt').read().split(':')
+    print("Starting the WIFI...")
+    import secrets
     wifi = network.WLAN(network.STA_IF)
     wifi.active(True)
-    wifi.connect(ssid, password)
+    # Connect to the wifi (requires secrets.py to be present)
+    wifi.connect(secrets.wifi.ssid, secrets.wifi.password)
     while not wifi.isconnected():
-        pass
+        utime.sleep(0.2)
     current_ip = wifi.ifconfig()[0]
+    print("WIFI connected at %s" % current_ip)
 
     webrepl.start()
-
-
-def timed_function(f, *args, **kwargs):
-    def new_func(*args, **kwargs):
-        t = utime.ticks_us()
-        result = f(*args, **kwargs)
-        delta = utime.ticks_diff(utime.ticks_us(), t)
-        print('Function {} Time = {:6.3f}ms'.format(f.__name__, delta / 1000))
-        return result
-
-    return new_func
