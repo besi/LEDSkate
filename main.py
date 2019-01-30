@@ -30,49 +30,57 @@ max_mode = 4
 
 black_mode = lambda x: (0, 0, 0)
 
+def disco_mode(x):
+    if 0 <= x < 1 / 3:
+        return (1, 0, 0)
+    if 1 / 3 <= x < 2 / 3:
+        return (0, 1, 0)
+    if 2 / 3 <= x:
+        return (0, 0, 1)
+
+
+def rainbow_mode(x):
+    r, g, b = 0, 0, 0
+    if 0 <= x < 1 / 3:
+        r = (1 - x) * 3
+        g = x * 3
+        b = 0
+    if 1 / 3 <= x < 2 / 3:
+        x = x - 1 / 3
+        g = (1 / 3 - x) * 3
+        b = x * 3
+        r = 0
+    if 2 / 3 <= x:
+        x = x - 2 / 3
+        b = (1 / 3 - x) * 3
+        r = x * 3
+        g = 0
+    return (r, g, b)
+
+
+def disco_smooth_mode(x):
+    r = max(0, 1 - abs(x - 1 / 6) * 6)
+    g = max(0, 1 - abs(x - 3 / 6) * 6)
+    b = max(0, 1 - abs(x - 5 / 6) * 6)
+    return (r, g, b)
+
+
 def initialize_pixel(count, pixel, mode):
     gamma = 1
     for k in range(count):
+        r, g, b = (0, 0, 0)
         x = k / count
-        if mode == 1:  # Rainbow
-            if 0 <= x < 1 / 3:
-                r = 1
-                g = 0
-                b = 0
-            if 1 / 3 <= x < 2 / 3:
-                r = 0
-                g = 1
-                b = 0
-            if 2 / 3 <= x:
-                r = 0
-                g = 0
-                b = 1
+        if mode == 1:
+            r, g, b = disco_mode(x)
             gamma = 1 / 1.8
-
-        if mode == 2:  # Disco hard
-            if 0 <= x < 1 / 3:
-                r = (1 - x) * 3
-                g = x * 3
-                b = 0
-            if 1 / 3 <= x < 2 / 3:
-                x = x - 1 / 3
-                g = (1 / 3 - x) * 3
-                b = x * 3
-                r = 0
-            if 2 / 3 <= x:
-                x = x - 2 / 3
-                b = (1 / 3 - x) * 3
-                r = x * 3
-                g = 0
+        if mode == 2:
+            r, g, b = rainbow_mode(x)
             gamma = 1 / 1.8
-
-        if mode == 3:  # Disco Smooth
-            r = max(0, 1 - abs(x - 1 / 6) * 6)
-            g = max(0, 1 - abs(x - 3 / 6) * 6)
-            b = max(0, 1 - abs(x - 5 / 6) * 6)
+        if mode == 3:
+            r, g, b = disco_smooth_mode(x)
             gamma = 1.6
-
-        if mode == 4:  # Followed by the cops
+        if mode == 4:
+            # if followed by the cops
             r, g, b = black_mode(x)
 
         r = r ** gamma
