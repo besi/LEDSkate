@@ -25,9 +25,10 @@ offset = 1
 
 mode_switch = machine.Pin(mode_switch_pin, machine.Pin.IN)
 
-current_mode = 3
-max_mode = 3
+current_mode = 1
+max_mode = 4
 
+black_mode = lambda x: (0, 0, 0)
 
 def initialize_pixel(count, pixel, mode):
     gamma = 1
@@ -70,6 +71,9 @@ def initialize_pixel(count, pixel, mode):
             g = max(0, 1 - abs(x - 3 / 6) * 6)
             b = max(0, 1 - abs(x - 5 / 6) * 6)
             gamma = 1.6
+
+        if mode == 4:  # Followed by the cops
+            r, g, b = black_mode(x)
 
         r = r ** gamma
         g = g ** gamma
