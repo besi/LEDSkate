@@ -9,6 +9,8 @@ from microWebSrv import MicroWebSrv
 change_rate = .9815
 led_count = 80
 sub_strip_count = 40
+
+mode_switch_pin = 12
 proximity_pin = 36
 neopixel_pin = 4
 led_pin = 5
@@ -21,7 +23,7 @@ proximity = machine.Pin(proximity_pin, machine.Pin.IN)
 old_proximity = 1
 offset = 1
 
-button = machine.Pin(0)
+mode_switch = machine.Pin(mode_switch_pin, machine.Pin.IN)
 
 current_mode = 3
 max_mode = 3
@@ -77,7 +79,7 @@ def initialize_pixel(count, pixel, mode):
 
 
 initialize_pixel(led_count, np_dummy, current_mode)
-last_button = button.value()
+last_button = mode_switch.value()
 
 wifi = network.WLAN(network.STA_IF)
 ap = network.WLAN(network.AP_IF)
@@ -139,10 +141,10 @@ def change_mode():
 
 while True:
     led.value(proximity.value())
-    if last_button != button.value() and button.value() == 0:
+    if last_button != mode_switch.value() and mode_switch.value() == 1:
         change_mode()
 
-    last_button = button.value()
+    last_button = mode_switch.value()
 
     if proximity.value() != old_proximity:
         updateStrip()
