@@ -23,15 +23,15 @@ offset = 0
 
 button = machine.Pin(0)
 
-current_mode = 4
-max_mode = 4
+current_mode = 3
+max_mode = 3
 
 
 def initialize_pixel(count, pixel, mode):
     gamma = 1
     for k in range(count):
         x = k / count
-        if mode == 1:
+        if mode == 1:  # Rainbow
             if 0 <= x < 1 / 3:
                 r = 1
                 g = 0
@@ -46,7 +46,7 @@ def initialize_pixel(count, pixel, mode):
                 b = 1
             gamma = 1 / 1.8
 
-        if mode == 2:
+        if mode == 2:  # Disco hard
             if 0 <= x < 1 / 3:
                 r = (1 - x) * 3
                 g = x * 3
@@ -63,13 +63,7 @@ def initialize_pixel(count, pixel, mode):
                 g = 0
             gamma = 1 / 1.8
 
-        if mode == 3:
-            r = max(0, 1 - abs(x - 1 / 6) * 6)
-            g = max(0, 1 - abs(x - 3 / 6) * 6)
-            b = max(0, 1 - abs(x - 5 / 6) * 6)
-            gamma = 1
-
-        if mode == 4:
+        if mode == 3:  # Disco Smooth
             r = max(0, 1 - abs(x - 1 / 6) * 6)
             g = max(0, 1 - abs(x - 3 / 6) * 6)
             b = max(0, 1 - abs(x - 5 / 6) * 6)
@@ -106,6 +100,7 @@ def startWebserver():
 if wifi.active():
     startWebserver()
 
+
 def updateStrip():
     global offset
     bytes = 3
@@ -126,15 +121,14 @@ def updateStrip():
     np.write()
 
 
-
 def change_mode():
     global current_mode
     global max_mode
     old_mode = current_mode
     current_mode += 1
-    print("Changed mode from %i to %i" % (old_mode, current_mode))
     if current_mode > max_mode:
         current_mode = 1
+    print("Changed mode from %i to %i" % (old_mode, current_mode))
     initialize_pixel(led_count, np_dummy, current_mode)
 
 
