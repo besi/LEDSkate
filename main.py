@@ -83,9 +83,10 @@ def initialize_pixel(count, pixel, mode):
             # if followed by the cops
             r, g, b = black_mode(x)
 
-        r = r ** gamma
-        g = g ** gamma
-        b = b ** gamma
+        if gamma != 1:
+            r = r ** gamma
+            g = g ** gamma
+            b = b ** gamma
 
         pixel[k] = (int(r * 255), int(g * 255), int(b * 255))
 
