@@ -88,17 +88,6 @@ last_button = button.value()
 wifi = network.WLAN(network.STA_IF)
 
 
-def change_mode():
-    global current_mode
-    global max_mode
-    old_mode = current_mode
-    current_mode += 1
-    print("Changed mode from %i to %i" % (old_mode, current_mode))
-    if current_mode > max_mode:
-        current_mode = 1
-    initialize_pixel(led_count, np_dummy, current_mode)
-
-
 @MicroWebSrv.route('/mode')
 def handlerFuncGet(httpClient, httpResponse):
     change_mode()
@@ -117,31 +106,49 @@ def startWebserver():
 if wifi.active():
     startWebserver()
 
+def updateStrip():
+    global offset
+    bytes = 3
+    offset -= change_rate
+    index = (int(offset) % led_count)
+    idx_end = index + sub_strip_count
+    if idx_end > led_count:
+        idx_end = (idx_end - led_count)
+        end_len = (led_count - index)
+        np.buf[0:end_len * bytes] = np_dummy.buf[index * bytes:led_count * bytes]
+        np.buf[end_len * bytes:sub_strip_count * bytes] = np_dummy.buf[0:(sub_strip_count - end_len) * bytes]
+    else:
+        np.buf[0:sub_strip_count * bytes] = np_dummy.buf[index * bytes:idx_end * bytes]
+
+    for k in range(sub_strip_count):
+        k3 = k * bytes
+        np.buf[120 + k3:123 + k3] = np.buf[117 - k3:120 - k3]
+    np.write()
+
+
+
+def change_mode():
+    global current_mode
+    global max_mode
+    old_mode = current_mode
+    current_mode += 1
+    print("Changed mode from %i to %i" % (old_mode, current_mode))
+    if current_mode > max_mode:
+        current_mode = 1
+    initialize_pixel(led_count, np_dummy, current_mode)
+
+
 while True:
     led.value(proximity.value())
 
     if last_button != button.value() and button.value() == 0:
         change_mode()
+        offset = 0
+        updateStrip()
 
     last_button = button.value()
 
     if proximity.value() != old_proximity:
-        bytes = 3
-        offset -= change_rate
-        index = (int(offset) % led_count)
-        idx_end = index + sub_strip_count
-        if idx_end > led_count:
-            idx_end = (idx_end - led_count)
-            end_len = (led_count - index)
-            np.buf[0:end_len * bytes] = np_dummy.buf[index * bytes:led_count * bytes]
-            np.buf[end_len * bytes:sub_strip_count * bytes] = np_dummy.buf[0:(sub_strip_count - end_len) * bytes]
-        else:
-            np.buf[0:sub_strip_count * bytes] = np_dummy.buf[index * bytes:idx_end * bytes]
-
-        for k in range(sub_strip_count):
-            k3 = k * bytes
-            np.buf[120 + k3:123 + k3] = np.buf[117 - k3:120 - k3]
-        np.write()
-
+        updateStrip()
     old_proximity = proximity.value()
     time.sleep(0.0025)
