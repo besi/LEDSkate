@@ -9,7 +9,14 @@ esp.osdebug(None)
 # Pressing the button during startup will enable the WIFI
 utime.sleep(.5)
 enable_wifi = not machine.Pin(0, machine.Pin.IN).value()
-current_ip = None
+
+
+if False:
+    ap = network.WLAN(network.AP_IF)
+    ap.active(True)
+    ap.config(essid='LEDSkate')
+    print("Access point IP is %s" % ap.ifconfig()[0])
+    enable_wifi = False
 
 if enable_wifi:
     import secrets
@@ -20,5 +27,4 @@ if enable_wifi:
     wifi.connect(secrets.wifi.ssid, secrets.wifi.password)
     while not wifi.isconnected():
         machine.idle()
-    current_ip = wifi.ifconfig()[0]
-    print("WIFI connected at %s" % current_ip)
+    print("WIFI connected at %s" % wifi.ifconfig()[0])

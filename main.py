@@ -19,7 +19,7 @@ np_dummy = neopixel.NeoPixel(machine.Pin(neopixel_pin), led_count, timing=True)
 
 proximity = machine.Pin(proximity_pin, machine.Pin.IN)
 old_proximity = 1
-offset = 0
+offset = 1
 
 button = machine.Pin(0)
 
@@ -80,6 +80,7 @@ initialize_pixel(led_count, np_dummy, current_mode)
 last_button = button.value()
 
 wifi = network.WLAN(network.STA_IF)
+ap = network.WLAN(network.AP_IF)
 
 
 @MicroWebSrv.route('/mode')
@@ -92,12 +93,13 @@ def handlerFuncGet(httpClient, httpResponse):
 
 
 def startWebserver():
-    print('Starting Webserver at http://%s' % wifi.ifconfig()[0])
+    ip = wifi.ifconfig()[0] if wifi.active() else ap.ifconfig()[0]
+    print('Starting Webserver at http://%s' % ip)
     mws = MicroWebSrv()
     mws.Start(threaded=True)
 
 
-if wifi.active():
+if wifi.active() or ap.active():
     startWebserver()
 
 
@@ -122,6 +124,8 @@ def updateStrip():
 
 
 def change_mode():
+    global offset
+    offset = 1
     global current_mode
     global max_mode
     old_mode = current_mode
@@ -130,15 +134,13 @@ def change_mode():
         current_mode = 1
     print("Changed mode from %i to %i" % (old_mode, current_mode))
     initialize_pixel(led_count, np_dummy, current_mode)
+    updateStrip()
 
 
 while True:
     led.value(proximity.value())
-
     if last_button != button.value() and button.value() == 0:
         change_mode()
-        offset = 0
-        updateStrip()
 
     last_button = button.value()
 
