@@ -26,9 +26,10 @@ offset = 1
 mode_switch = machine.Pin(mode_switch_pin, machine.Pin.IN)
 
 current_mode = 1
-max_mode = 4
+max_mode = 5
 
 black_mode = lambda x: (0, 0, 0)
+
 
 def disco_mode(x):
     if 0 <= x < 1 / 3:
@@ -37,6 +38,13 @@ def disco_mode(x):
         return (0, 1, 0)
     if 2 / 3 <= x:
         return (0, 0, 1)
+
+
+def being_the_cops(x):
+    if 0 <= x < 1 / 3:
+        return (0, 0, 1)
+    else:
+        return black_mode(x)
 
 
 def rainbow_mode(x):
@@ -80,6 +88,8 @@ def initialize_pixel(count, pixel, mode):
             r, g, b = disco_smooth_mode(x)
             gamma = 1.6
         if mode == 4:
+            r, g, b = being_the_cops(x)
+        if mode == 5:
             # if followed by the cops
             r, g, b = black_mode(x)
 
